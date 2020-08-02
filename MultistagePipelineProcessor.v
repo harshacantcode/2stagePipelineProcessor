@@ -41,7 +41,6 @@ inst_mem[10] = 8'b00001111;
 inst_mem[11] = 8'b11000011;
 //R1 = R1 >>> 31 SRA
 
-//sthe branch seems to be taken but goes to a wrong value
 
 /*
 inst_mem[4] = 8'b00010100;
@@ -81,26 +80,6 @@ reg [29:0] mux_bz,mux_j;
 	wire [29:0] pc_add,pc_jump;
 	assign pc_jump = {pc[31:28],target};
 	assign pc_add = pc[31:2] + 1'b1;
-
-	/*always@(pc_add, branch,flag,imm,instr,pc_jump,jump,mux_bz)
-	begin
-		if(branch == 1'b1 & flag == 1'b1)
-		begin
-			mux_bz = pc_add + {{14{imm[15]}},imm[15:0]};
-		end
-		else
-		begin
-			mux_bz = pc_add;
-		end
-		if(jump == 1'b1)
-		begin
-			mux_j = pc_jump;
-		end
-		else
-		begin
-			mux_j = mux_bz;
-		end
-	end*/
 	
 	always@(pc_add, branch,flag,imm,instr)
 	begin
@@ -112,26 +91,10 @@ reg [29:0] mux_bz,mux_j;
 		begin
 			mux_bz = pc_add;
 		end
-		/*if(jump == 1'b1)
-		begin
-			mux_j = pc_jump;
-		end
-		else
-		begin
-			mux_j = mux_bz;
-		end*/
 	end
 	
 	always@(pc_jump or jump or mux_bz)
 	begin
-		/*if(branch == 1'b1 & flag == 1'b1)
-		begin
-			mux_bz = pc_add + {{14{imm[15]}},imm[15:0]};
-		end
-		else
-		begin
-			mux_bz = pc_add;
-		end*/
 		if(jump == 1'b1)
 		begin
 			mux_j = pc_jump;
@@ -304,6 +267,7 @@ module processor(
 	reg [7:0] data_mem[63:0];
 	initial
 	begin
+		
 	//as in the MIPS ISA the first reg file is has a zero value
 	//giving dummy values for register files 1-6.
 	reg_file[0] = 0;
@@ -317,15 +281,14 @@ module processor(
 	reg_file[8] = 8;
 	
 	end
-//	assign data_lo_store_ayye_lanja = data_mem[0]; //my edit to the function
-
+	
 	assign instr = inst;
 	assign rs = instr[25:21];
 	assign rt = instr[20:16];
 	assign rd = instr[15:11];
 	assign sa = instr[10:6];
 	assign func = instr[5:0];
-//as the if condition can only be declared inside an always loop.
+//as an if condition can only be declared inside an always loop.
 	always@(instr)
 		begin
 			imm = instr[15:0];
@@ -341,7 +304,6 @@ module processor(
 				 mem_to_reg = 0;
 				 branch = 0;
 				 jump = 0;
-				 //addcomp = 26'bZ;
 				 assign busw = O;
 					if(func == 6'b100000)
 						begin
@@ -503,7 +465,7 @@ module processor(
 						assign branch = 1;
 						
 						assign busa = reg_file[rs];
-						assign busc = reg_file[rt];		// i am not sure 
+						assign busc = reg_file[rt];		
 						assign busw = O;
 						assign bs = 0;
 						assign sigop = 0;
@@ -543,7 +505,6 @@ module processor(
 						assign busw = data_mem[O];
 						assign bs = 0;
 						assign sigop = 0;
-						//assign addcomp = 26'bZ;
 					end
 				else if(instr[31:26] == 6'b101011)
 					begin
@@ -561,7 +522,6 @@ module processor(
 						assign busw = O;
 						assign bs = 0;
 						assign sigop = 0;
-						//assign addcomp = 26'bZ;
 					end
 				else if(instr[31:26] == 6'b001000)
 					begin
@@ -579,7 +539,6 @@ module processor(
 						assign busw = O;
 						assign bs = 0;
 						assign sigop = 0;
-						//assign addcomp = 26'bZ;
 					end
 				else if(instr[31:26] == 6'b001100)
 					begin
@@ -597,7 +556,6 @@ module processor(
 						assign busw = O;
 						assign bs = 0;
 						assign sigop = 0;
-						//assign addcomp = 26'bZ;
 					end
 				else if(instr[31:26] == 6'b001101)
 					begin
@@ -615,7 +573,6 @@ module processor(
 						assign busw = O;
 						assign bs = 0;
 						assign sigop = 0;
-						//assign addcomp = 26'bZ;
 					end
 				else if(instr[31:26] == 6'b001110)
 					begin
@@ -633,7 +590,6 @@ module processor(
 						assign busw = O; 
 						assign bs = 0;
 						assign sigop = 0;
-						//assign addcomp = 26'bZ;
 					end
 				else if(instr[31:26] == 6'b001010)
 					begin
@@ -651,7 +607,6 @@ module processor(
 						assign busw = O; 
 						assign bs = 0;
 						assign sigop = 1;
-						//assign addcomp = 26'bZ;
 					end
 				else if(instr[31:26] == 6'b001011)
 					begin
@@ -669,7 +624,6 @@ module processor(
 						assign busw = O; 
 						assign bs = 0;
 						assign sigop = 0;
-						//assign addcomp = 26'bZ;
 					end
 				else if(instr[31:26] == 6'b000001 & inst[20:16] == 5'b00001)
 					begin
@@ -687,7 +641,6 @@ module processor(
 						assign busw = O;
 						assign bs = 0;
 						assign sigop = 0;
-						//assign addcomp = {{10'bZ},imm};
 					end
 				else if(instr[31:26] == 6'b000111)
 					begin
@@ -705,7 +658,6 @@ module processor(
 						assign busw = O;
 						assign bs = 0;
 						assign sigop = 0;
-						//assign addcomp = {{10'bZ},imm};
 					end
 			end
 	end
@@ -743,9 +695,6 @@ wire [31:0] instr,instr_dec;
 wire [3:0] aluop;
 wire [31:0] out1,busw,busc,O;
 reg [31:0] inst,inst_dec;
-//ifu h1(clk,branch,jump,flag,im1,ta1,instr,pc);
-//processor h2(clk,ta1,imm,br,ju,fl1,instr_dec,bs,sigop,aluop,otp,out1,busw,busc,O);
-
 
 ifu h1(clk,branch,ju,flag,im1,ta1,instr,pc);
 processor h2(clk,ta1,im1,br,ju,fl1,instr_dec,bs,sigop,aluop,otp,out1,busw,busc,O);
@@ -760,8 +709,6 @@ assign out_1=out1;
 assign branch = br;
 assign jump = ju;
 assign flag = fl1;
-//assign im1 = imm;
-//assign ta1 = target;
 
 always @(negedge clk)
 begin
